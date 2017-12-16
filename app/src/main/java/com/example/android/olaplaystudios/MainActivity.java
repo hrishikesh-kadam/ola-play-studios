@@ -40,9 +40,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         recyclerView.setAdapter(songsAdapter);
 
         getSupportLoaderManager().initLoader(
-                MainAsyncTaskLoader.GET_ALL_SONGS_FROM_DB, null, this);
-
-        getSupportLoaderManager().initLoader(
                 MainAsyncTaskLoader.GET_ALL_SONGS_FROM_INTERNET, null, this);
     }
 
@@ -76,6 +73,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 Log.v(LOG_TAG, "-> onLoadFinished -> GET_ALL_SONGS_FROM_INTERNET");
                 songDetailsList = (ArrayList<SongDetails>) data;
                 Log.d(LOG_TAG, "-> onLoadFinished -> GET_ALL_SONGS_FROM_INTERNET -> " + songDetailsList);
+
+                getSupportLoaderManager().initLoader(
+                        MainAsyncTaskLoader.GET_ALL_SONGS_FROM_DB, null, this);
+
                 break;
 
             case MainAsyncTaskLoader.GET_ALL_SONGS_FROM_DB:
