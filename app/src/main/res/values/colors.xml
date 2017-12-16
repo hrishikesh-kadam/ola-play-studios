@@ -8,4 +8,7 @@
 
     <color name="imageview_loading_placeholder">#ABABAB</color>
     <color name="imageview_error_placeholder">#FF8888</color>
+
+    <color name="ratingBarBackground">#DDD</color>
+    <color name="ratingBarProgress">#FC0</color>
 </resources>

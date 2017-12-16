@@ -1,13 +1,19 @@
 package com.example.android.olaplaystudios;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.drawable.LayerDrawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.android.olaplaystudios.data.StudiosContract.SongsEntry;
@@ -112,6 +118,13 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 normalViewHolder.textViewArtists.setText(
                         cursor.getString(cursor.getColumnIndex(SongsEntry.COLUMN_SONG_ARTISTS)));
 
+                float rating = cursor.getLong(cursor.getColumnIndex(
+                        SongsEntry.COLUMN_SONG_FAVORITE)) == 1 ? 1.0f : 0.0f;
+                normalViewHolder.ratingBar.setRating(rating);
+
+                normalViewHolder.ratingBar.setTag(
+                        cursor.getLong(cursor.getColumnIndex(SongsEntry._ID)));
+
                 break;
 
             case LOADING_VIEW:
@@ -154,7 +167,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         }
     }
 
-    public class NormalViewHolder extends ViewHolder {
+    public class NormalViewHolder extends ViewHolder implements View.OnTouchListener {
 
         @BindView(R.id.textViewSongName)
         TextView textViewSongName;
@@ -165,9 +178,65 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         @BindView(R.id.imageViewCover)
         ImageView imageViewCover;
 
+        @BindView(R.id.ratingBar)
+        RatingBar ratingBar;
+
+        private int ratingAtActionDown;
+
         public NormalViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+
+            initRatingBar();
+        }
+
+        public void initRatingBar() {
+
+            LayerDrawable layerDrawable = (LayerDrawable) ratingBar.getProgressDrawable();
+
+            DrawableCompat.setTint(DrawableCompat.wrap(layerDrawable.getDrawable(0)),
+                    ContextCompat.getColor(context, R.color.ratingBarBackground));   // Empty star
+
+            DrawableCompat.setTint(DrawableCompat.wrap(layerDrawable.getDrawable(1)),
+                    ContextCompat.getColor(context, R.color.ratingBarProgress)); // Partial star
+
+            DrawableCompat.setTint(DrawableCompat.wrap(layerDrawable.getDrawable(2)),
+                    ContextCompat.getColor(context, R.color.ratingBarProgress));
+
+            ratingBar.setOnTouchListener(this);
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent motionEvent) {
+
+            switch (v.getId()) {
+
+                case R.id.ratingBar:
+
+                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
+                        ratingAtActionDown = (int) ratingBar.getRating();
+
+                    else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        ratingBar.setRating(ratingAtActionDown == 0 ? 1 : 0);
+                        onRatingChanged(ratingBar.getRating(), true);
+                        v.performClick();
+                    }
+
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void onRatingChanged(float rating, boolean fromUser) {
+            Log.v(LOG_TAG, "-> onRatingChanged -> rating = " + rating + ", fromUser = " + fromUser);
+
+            ContentValues values = new ContentValues();
+            values.put(SongsEntry.COLUMN_SONG_FAVORITE, (long) rating);
+
+            context.getContentResolver().update(
+                    SongsEntry.CONTENT_URI.buildUpon().appendPath(ratingBar.getTag().toString()).build(),
+                    values, null, null);
         }
     }
 
