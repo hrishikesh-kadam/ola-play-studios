@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Ola Play Studios</string>
+
+    <string name="artists">Artists :</string>
+    <string name="empty_view">No Songs Found</string>
+    <string name="try_again_message">Something went wrong!\n\nPlease try again&#8230;</string>
 </resources>

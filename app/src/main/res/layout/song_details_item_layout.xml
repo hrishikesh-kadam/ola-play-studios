@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/song_details_item_background"
+    android:layout_marginStart="@dimen/song_details_item_margin"
+    android:layout_marginEnd="@dimen/song_details_item_margin"
+    android:layout_marginBottom="@dimen/song_details_item_margin"
+    tools:layout_margin="16dp">
+
+    <ImageView
+        android:id="@+id/imageViewCover"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_margin="8dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/afreen_afreen_cover_image" />
+
+    <Button
+        android:id="@+id/buttonPlay"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/ic_play_arrow_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewCover"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageViewCover" />
+
+    <TextView
+        android:id="@+id/textViewSongName"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="8dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toTopOf="@id/viewMiddleDivider"
+        app:layout_constraintEnd_toStartOf="@id/buttonPlay"
+        app:layout_constraintStart_toEndOf="@id/imageViewCover"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Afreen Afreen" />
+
+    <View
+        android:id="@+id/viewMiddleDivider"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/song_details_item_divider_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageViewCover" />
+
+    <TextView
+        android:id="@+id/textViewArtistsTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="@string/artists"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/viewMiddleDivider" />
+
+    <TextView
+        android:id="@+id/textViewArtists"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="4dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/ratingBar"
+        app:layout_constraintStart_toEndOf="@id/textViewArtistsTitle"
+        app:layout_constraintTop_toBottomOf="@id/viewMiddleDivider"
+        tools:text="Rahat Fateh Ali Khan, Momina Mustehsan" />
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:numStars="1"
+        android:scaleX="0.7"
+        android:scaleY="0.7"
+        android:stepSize="1.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewMiddleDivider" />
+
+</android.support.constraint.ConstraintLayout>

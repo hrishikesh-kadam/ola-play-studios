@@ -3,4 +3,9 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="song_details_item_divider_color">#999999</color>
+
+    <color name="imageview_loading_placeholder">#ABABAB</color>
+    <color name="imageview_error_placeholder">#FF8888</color>
 </resources>
