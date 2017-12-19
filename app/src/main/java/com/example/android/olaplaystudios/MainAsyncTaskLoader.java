@@ -9,6 +9,12 @@ import com.example.android.olaplaystudios.data.StudiosContract.SongsEntry;
 import com.example.android.olaplaystudios.model.SongDetails;
 import com.example.android.olaplaystudios.rest.HackerearthService;
 import com.example.android.olaplaystudios.rest.RetrofitSingleton;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +29,7 @@ import retrofit2.Response;
 public class MainAsyncTaskLoader extends AsyncTaskLoader {
 
     public static final int GET_ALL_SONGS_FROM_INTERNET = 0;
+    public static final int GET_EXOPLAYER = 1;
     private static final String LOG_TAG = MainAsyncTaskLoader.class.getSimpleName();
     private Object cachedData;
     private String loaderString;
@@ -40,6 +47,9 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
 
             case GET_ALL_SONGS_FROM_INTERNET:
                 return "GET_ALL_SONGS_FROM_INTERNET";
+
+            case GET_EXOPLAYER:
+                return "GET_EXOPLAYER";
 
             default:
                 throw new UnsupportedOperationException("Unknown loader id = " + id);
@@ -63,6 +73,9 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
 
         if (getId() == GET_ALL_SONGS_FROM_INTERNET)
             return getAllSongs();
+
+        else if (getId() == GET_EXOPLAYER)
+            return getExoplayer();
 
         return null;
     }
@@ -131,5 +144,19 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
         }
 
         return adapterDataWrapper;
+    }
+
+    public Object getExoplayer() {
+        Log.v(LOG_TAG, "-> loadInBackground -> getExoplayer -> " + loaderString);
+
+        // Create an instance of the ExoPlayer.
+        TrackSelector trackSelector = new DefaultTrackSelector();
+        LoadControl loadControl = new DefaultLoadControl();
+
+        ExoPlayer exoPlayer = ExoPlayerFactory.newSimpleInstance(
+                getContext(), trackSelector, loadControl);
+
+        cachedData = exoPlayer;
+        return exoPlayer;
     }
 }

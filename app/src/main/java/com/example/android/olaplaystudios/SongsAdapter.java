@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -34,12 +35,17 @@ import butterknife.OnClick;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> {
 
+    public static final String PLAY = "PLAY";
+    public static final String PAUSE = "PAUSE";
     private static final String LOG_TAG = SongsAdapter.class.getSimpleName();
     private Context context;
     private ArrayList<SongDetails> songDetailsList;
     private int dataViewType;
     private OnClickReloadListener onClickReloadListener;
     private Picasso picasso;
+    private OnClickButtonPlayPauseListener onClickButtonPlayPauseListener;
+    private int nowPlaying = -1;
+    private String action;
 
     public SongsAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
 
@@ -49,6 +55,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         dataViewType = adapterDataWrapper.dataViewType;
         onClickReloadListener = (OnClickReloadListener) context;
         picasso = CustomPicasso.getPicasso(context);
+        onClickButtonPlayPauseListener = (OnClickButtonPlayPauseListener) context;
     }
 
     public void swapData(AdapterDataWrapper adapterDataWrapper) {
@@ -119,6 +126,18 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
                 float rating = song.getFavorite() ? 1.0f : 0.0f;
                 normalViewHolder.ratingBar.setRating(rating);
+
+                if (song.getAction() == null || song.getAction().equals(PAUSE)) {
+
+                    normalViewHolder.buttonPlay.setVisibility(View.VISIBLE);
+                    normalViewHolder.buttonPause.setVisibility(View.INVISIBLE);
+
+                } else {
+
+                    normalViewHolder.buttonPlay.setVisibility(View.INVISIBLE);
+                    normalViewHolder.buttonPause.setVisibility(View.VISIBLE);
+                }
+
                 break;
         }
     }
@@ -141,6 +160,10 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         public void onClickReload();
     }
 
+    public interface OnClickButtonPlayPauseListener {
+        public void onClickButtonPlayPause(String action, int position, Uri uri);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         public ViewHolder(View itemView) {
@@ -161,6 +184,12 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
         @BindView(R.id.ratingBar)
         RatingBar ratingBar;
+
+        @BindView(R.id.buttonPlay)
+        Button buttonPlay;
+
+        @BindView(R.id.buttonPause)
+        Button buttonPause;
 
         private int ratingAtActionDown;
 
@@ -249,6 +278,30 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
             } else
                 Log.w(LOG_TAG, "-> onRatingChanged -> Unknown rating = " + rating);
+        }
+
+        @OnClick({R.id.buttonPlay, R.id.buttonPause})
+        public void onClickButtonPlayPause(Button button) {
+
+            if (button.getId() == R.id.buttonPlay)
+                action = PLAY;
+            else if (button.getId() == R.id.buttonPause)
+                action = PAUSE;
+
+            SongDetails song = songDetailsList.get(getAdapterPosition());
+            song.setAction(action);
+
+            if (nowPlaying != -1 && nowPlaying != getAdapterPosition())
+                songDetailsList.get(nowPlaying).setAction(null);
+
+            nowPlaying = getAdapterPosition();
+
+            Log.v(LOG_TAG, "-> onClickButtonPlayPause -> " + action + " -> " + nowPlaying);
+
+            onClickButtonPlayPauseListener.onClickButtonPlayPause(
+                    action, nowPlaying, Uri.parse(song.getUrl()));
+
+            notifyDataSetChanged();
         }
     }
 

@@ -25,6 +25,12 @@
             android:authorities="com.example.android.olaplaystudios"
             android:exported="false" />
 
+        <receiver android:name=".MainActivity$MediaReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

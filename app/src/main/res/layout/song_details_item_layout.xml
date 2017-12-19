@@ -15,9 +15,9 @@
         android:id="@+id/imageViewCover"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -29,6 +29,17 @@
         android:layout_height="50dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/ic_play_arrow_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewCover"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageViewCover" />
+
+    <Button
+        android:id="@+id/buttonPause"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/ic_pause_24dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/imageViewCover"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/imageViewCover" />
