@@ -45,7 +45,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     private Picasso picasso;
     private OnClickButtonPlayPauseListener onClickButtonPlayPauseListener;
     private int nowPlaying = -1;
-    private String action;
 
     public SongsAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
 
@@ -154,6 +153,13 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     @Override
     public int getItemViewType(int position) {
         return dataViewType;
+    }
+
+    public void setAction(String action, int position) {
+        Log.v(LOG_TAG, "-> setAction -> " + action + " -> " + position);
+
+        songDetailsList.get(position).setAction(action);
+        notifyDataSetChanged();
     }
 
     public interface OnClickReloadListener {
@@ -282,6 +288,8 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
         @OnClick({R.id.buttonPlay, R.id.buttonPause})
         public void onClickButtonPlayPause(Button button) {
+
+            String action = null;
 
             if (button.getId() == R.id.buttonPlay)
                 action = PLAY;

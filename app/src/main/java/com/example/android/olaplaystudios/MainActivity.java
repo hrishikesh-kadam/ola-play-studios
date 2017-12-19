@@ -112,8 +112,6 @@ public class MainActivity extends AppCompatActivity
         exoPlayerView.setControllerShowTimeoutMs(-1);
         exoPlayerView.showController();
 
-        Log.d(LOG_TAG, "-> initializePlayer -> " + exoPlayerView.getControllerShowTimeoutMs());
-
         // Set the ExoPlayer.EventListener to this activity.
         exoPlayer.addListener(this);
 
@@ -211,6 +209,29 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+
+        String action = null;
+
+        if ((playbackState == Player.STATE_READY) && playWhenReady) {
+            Log.v(LOG_TAG, "-> onPlayerStateChanged -> PLAY");
+
+            stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
+                    exoPlayer.getCurrentPosition(), 1f);
+
+            action = SongsAdapter.PLAY;
+            songsAdapter.setAction(action, nowPlaying);
+
+        } else if ((playbackState == Player.STATE_READY)) {
+            Log.v(LOG_TAG, "-> onPlayerStateChanged -> PAUSE");
+
+            stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
+                    exoPlayer.getCurrentPosition(), 1f);
+
+            action = SongsAdapter.PAUSE;
+            songsAdapter.setAction(action, nowPlaying);
+        }
+
+        mediaSession.setPlaybackState(stateBuilder.build());
     }
 
     @Override
@@ -263,6 +284,24 @@ public class MainActivity extends AppCompatActivity
 
         nowPlaying = position;
         playSong(uri);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.v(LOG_TAG, "-> onSaveInstanceState");
+
+        outState.putInt("nowPlaying", nowPlaying);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.v(LOG_TAG, "-> onRestoreInstanceState");
+
+        nowPlaying = savedInstanceState.getInt("nowPlaying");
+
+        onPlayerStateChanged(exoPlayer.getPlayWhenReady(), exoPlayer.getPlaybackState());
     }
 
     /**
