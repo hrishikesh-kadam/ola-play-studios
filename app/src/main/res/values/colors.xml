@@ -11,4 +11,7 @@
 
     <color name="ratingBarBackground">#DDD</color>
     <color name="ratingBarProgress">#FC0</color>
+
+    <color name="app_background">#DDD</color>
+    <color name="song_details_item_background">#FFF</color>
 </resources>
