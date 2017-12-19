@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.example.android.olaplaystudios.data.StudiosContract;
 import com.example.android.olaplaystudios.data.StudiosContract.SongsEntry;
 import com.example.android.olaplaystudios.model.SongDetails;
+import com.example.android.olaplaystudios.util.CustomPicasso;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     private ArrayList<SongDetails> songDetailsList;
     private int dataViewType;
     private OnClickReloadListener onClickReloadListener;
+    private Picasso picasso;
 
     public SongsAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
 
@@ -46,6 +48,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         songDetailsList = (ArrayList<SongDetails>) adapterDataWrapper.data;
         dataViewType = adapterDataWrapper.dataViewType;
         onClickReloadListener = (OnClickReloadListener) context;
+        picasso = CustomPicasso.getPicasso(context);
     }
 
     public void swapData(AdapterDataWrapper adapterDataWrapper) {
@@ -106,10 +109,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
                 SongDetails song = songDetailsList.get(position);
 
-                String coverImageUrl = song.getCoverImage().replace("http:", "https:");
-
-                Picasso.with(context)
-                        .load(coverImageUrl)
+                picasso.load(song.getCoverImage())
                         .placeholder(R.drawable.imageview_loading_placeholder)
                         .error(R.drawable.imageview_error_placeholder)
                         .into(normalViewHolder.imageViewCover);

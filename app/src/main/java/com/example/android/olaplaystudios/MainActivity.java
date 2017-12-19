@@ -73,7 +73,8 @@ public class MainActivity extends AppCompatActivity
     public void onClickReload() {
         Log.v(LOG_TAG, "-> onClickReload");
 
-        songsAdapter.swapData(new AdapterDataWrapper(ViewType.LOADING_VIEW, null));
+        songsAdapterDataWrapper = new AdapterDataWrapper(ViewType.LOADING_VIEW, null);
+        songsAdapter.swapData(songsAdapterDataWrapper);
 
         getSupportLoaderManager().restartLoader(
                 MainAsyncTaskLoader.GET_ALL_SONGS_FROM_INTERNET, null, this);
