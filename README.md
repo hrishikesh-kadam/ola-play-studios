@@ -6,6 +6,7 @@ Link - https://github.com/hrishikesh-kadam/ola-play-studios
 
 ## Components Used -
 
+- Exoplayer
 - Retrofit
 - Gson
 - Recycler View
@@ -13,6 +14,7 @@ Link - https://github.com/hrishikesh-kadam/ola-play-studios
 - Picasso
 - Butterknife
 - Content Provider
+- AsyncTaskLoader
 
 ## Application Working covered -
 
@@ -23,12 +25,16 @@ Link - https://github.com/hrishikesh-kadam/ola-play-studios
 - Couldn't implement paging because the API didn't had any paging related docs.
 - Clicking on star saves the songs as favorite in DB.
 
+[Plus Point]
+
+- Implement a music player in your application to stream songs, you can use any open source player like exoplayer but you should make your own UI skin for the player.
+
 [Other than listed requirement]
 
 - Supports RTL layout
 - Error and Loading placeholders for ImageView
 
-**I could do only this much in 12 hours. You can verify the timestamps from GitHub repo.**
+**I could do only this much in 25 hours and 30 minutes. You can verify the timestamps from GitHub repo.**
 
 
 ## Portfolio
