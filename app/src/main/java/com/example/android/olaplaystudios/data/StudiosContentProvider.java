@@ -152,7 +152,27 @@ public class StudiosContentProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection,
                       @Nullable String[] selectionArgs) {
-        throw new UnsupportedOperationException("delete not yet implemented");
+
+        int noOfRowsDeleted;
+        final SQLiteDatabase db = studiosDbHelper.getWritableDatabase();
+
+        switch (uriMatcher.match(uri)) {
+
+            case SONGS_WITH_ID:
+
+                noOfRowsDeleted = db.delete(
+                        SongsEntry.TABLE_NAME,
+                        SongsEntry._ID + " = ?",
+                        new String[]{uri.getLastPathSegment()});
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri + " in delete method");
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return noOfRowsDeleted;
     }
 
     @Override

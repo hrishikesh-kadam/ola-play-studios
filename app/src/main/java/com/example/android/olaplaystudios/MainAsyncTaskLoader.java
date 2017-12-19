@@ -1,6 +1,5 @@
 package com.example.android.olaplaystudios;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.content.AsyncTaskLoader;
@@ -24,19 +23,33 @@ import retrofit2.Response;
 public class MainAsyncTaskLoader extends AsyncTaskLoader {
 
     public static final int GET_ALL_SONGS_FROM_INTERNET = 0;
-    public static final int GET_ALL_SONGS_FROM_DB = 1;
     private static final String LOG_TAG = MainAsyncTaskLoader.class.getSimpleName();
     private Object cachedData;
+    private String loaderString;
 
     public MainAsyncTaskLoader(Context context) {
         super(context);
-        Log.v(LOG_TAG, "-> constructor");
+
+        loaderString = getLoaderString(getId());
+        Log.v(LOG_TAG, "-> constructor -> " + loaderString);
+    }
+
+    public static String getLoaderString(int id) {
+
+        switch (id) {
+
+            case GET_ALL_SONGS_FROM_INTERNET:
+                return "GET_ALL_SONGS_FROM_INTERNET";
+
+            default:
+                throw new UnsupportedOperationException("Unknown loader id = " + id);
+        }
     }
 
     @Override
     protected void onStartLoading() {
         super.onStartLoading();
-        Log.v(LOG_TAG, "-> onStartLoading");
+        Log.v(LOG_TAG, "-> onStartLoading -> " + loaderString);
 
         if (cachedData == null)
             forceLoad();
@@ -46,7 +59,7 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
 
     @Override
     public Object loadInBackground() {
-        Log.v(LOG_TAG, "-> loadInBackground");
+        Log.v(LOG_TAG, "-> loadInBackground -> " + loaderString);
 
         if (getId() == GET_ALL_SONGS_FROM_INTERNET)
             return getAllSongs();
@@ -55,7 +68,7 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
     }
 
     private Object getAllSongs() {
-        Log.v(LOG_TAG, "-> loadInBackground -> getAllSongs");
+        Log.v(LOG_TAG, "-> loadInBackground -> getAllSongs -> " + loaderString);
 
         HackerearthService hackerearthService = RetrofitSingleton.getHackerearthService();
         Call<ArrayList<SongDetails>> songDetailsCall = hackerearthService.getAllSongs();
@@ -68,15 +81,30 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
             e.printStackTrace();
         }
 
-        if (songDetailsResponse == null)
-            return null;
+        AdapterDataWrapper adapterDataWrapper;
+        ArrayList<SongDetails> songDetailsList = new ArrayList<>();
 
-        ArrayList<SongDetails> songDetailsList = songDetailsResponse.body();
+        if (songDetailsResponse == null || !songDetailsResponse.isSuccessful()) {
 
-        // Add only the new songs to the database
+            String code = songDetailsResponse != null ? String.valueOf(songDetailsResponse.code()) : "null";
+            Log.e(LOG_TAG, "-> loadInBackground -> getAllSongs -> " + loaderString + " -> Failure -> " + code);
+            adapterDataWrapper = new AdapterDataWrapper(ViewType.FAILURE_VIEW, null);
 
-        if (songDetailsList == null)
-            return null;
+        } else {
+
+            Log.v(LOG_TAG, "-> loadInBackground -> " + loaderString + " -> Success");
+            songDetailsList = songDetailsResponse.body();
+
+            if (songDetailsList == null || songDetailsList.isEmpty())
+                adapterDataWrapper = new AdapterDataWrapper(ViewType.EMPTY_VIEW, songDetailsList);
+            else
+                adapterDataWrapper = new AdapterDataWrapper(ViewType.NORMAL_VIEW, songDetailsList);
+        }
+
+        cachedData = adapterDataWrapper;
+
+        if (adapterDataWrapper.dataViewType != ViewType.NORMAL_VIEW)
+            return adapterDataWrapper;
 
         for (SongDetails song : songDetailsList) {
 
@@ -89,89 +117,19 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
                     song.getArtists(), song.getCoverImage()};
 
             Cursor cursor = getContext().getContentResolver().query(
-                    SongsEntry.CONTENT_URI, null, selection, selectionArgs, null);
+                    SongsEntry.CONTENT_URI,
+                    new String[]{SongsEntry._ID},
+                    selection, selectionArgs, null);
 
-            if (cursor == null)
+            if (cursor == null || cursor.getCount() == 0)
                 continue;
 
-            if (cursor.getCount() == 0) {
-
-                ContentValues values = new ContentValues();
-                values.put(SongsEntry.COLUMN_SONG_NAME, song.getSong());
-                values.put(SongsEntry.COLUMN_SONG_URL, song.getUrl());
-                values.put(SongsEntry.COLUMN_SONG_ARTISTS, song.getArtists());
-                values.put(SongsEntry.COLUMN_SONG_COVER_IMAGE, song.getCoverImage());
-
-                getContext().getContentResolver().insert(SongsEntry.CONTENT_URI, values);
-            }
-
+            song.setFavorite(true);
+            cursor.moveToFirst();
+            song.setDatabaseId((long) cursor.getInt(cursor.getColumnIndex(SongsEntry._ID)));
             cursor.close();
         }
 
-        cachedData = songDetailsList;
-        return songDetailsList;
+        return adapterDataWrapper;
     }
-
-//    private Object getAllSongs() {
-//        Log.v(LOG_TAG, "-> loadInBackground -> getAllSongs");
-//
-//        HackerearthService hackerearthService = RetrofitSingleton.getHackerearthService();
-//        Call<ArrayList<SongDetails>> songDetailsCall = hackerearthService.getAllSongs();
-//
-//        Response<ArrayList<SongDetails>> songDetailsResponse = null;
-//
-//        try {
-//            songDetailsResponse = songDetailsCall.execute();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        if (songDetailsResponse == null)
-//            return null;
-//
-//        ArrayList<SongDetails> songDetailsList = songDetailsResponse.body();
-//
-//        // Add only the new songs to the database
-//
-//        if (songDetailsList == null)
-//            return null;
-//
-//        ArrayList<ContentValues> valuesArrayList = new ArrayList<>();
-//
-//        for (SongDetails song : songDetailsList) {
-//
-//            String selection = SongsEntry.COLUMN_SONG_NAME + " = ? AND " +
-//                    SongsEntry.COLUMN_SONG_URL + " = ? AND " +
-//                    SongsEntry.COLUMN_SONG_ARTISTS + " = ? AND " +
-//                    SongsEntry.COLUMN_SONG_COVER_IMAGE + " = ?";
-//
-//            String[] selectionArgs = {song.getSong(), song.getUrl(),
-//                    song.getArtists(), song.getCoverImage()};
-//
-//            Cursor cursor = getContext().getContentResolver().query(
-//                    SongsEntry.CONTENT_URI, null, selection, selectionArgs, null);
-//
-//            if (cursor == null)
-//                continue;
-//
-//            if (cursor.getCount() == 0) {
-//
-//                ContentValues values = new ContentValues();
-//                values.put(SongsEntry.COLUMN_SONG_NAME, song.getSong());
-//                values.put(SongsEntry.COLUMN_SONG_URL, song.getUrl());
-//                values.put(SongsEntry.COLUMN_SONG_ARTISTS, song.getArtists());
-//                values.put(SongsEntry.COLUMN_SONG_COVER_IMAGE, song.getCoverImage());
-//                valuesArrayList.add(values);
-//            }
-//
-//            cursor.close();
-//        }
-//
-//        ContentValues[] valuesArray = valuesArrayList.toArray(new ContentValues[valuesArrayList.size()]);
-//        int noOfRowsInserted = getContext().getContentResolver().bulkInsert(SongsEntry.CONTENT_URI, valuesArray);
-//
-//        Log.d(LOG_TAG, "-> loadInBackground -> getAllSongs -> " + noOfRowsInserted);
-//
-//        return songDetailsList;
-//    }
 }

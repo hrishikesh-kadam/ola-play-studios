@@ -1,31 +1,24 @@
 package com.example.android.olaplaystudios;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.example.android.olaplaystudios.data.StudiosContract;
-import com.example.android.olaplaystudios.model.SongDetails;
-
-import java.util.ArrayList;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks {
+public class MainActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks, SongsAdapter.OnClickReloadListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private ArrayList<SongDetails> songDetailsList = new ArrayList<>();
-    private Cursor cursor;
-    private SongsAdapter songsAdapter;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    private SongsAdapter songsAdapter;
+    private AdapterDataWrapper songsAdapterDataWrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ButterKnife.bind(this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        songsAdapter = new SongsAdapter(this, null, SongsAdapter.LOADING_VIEW);
+        songsAdapter = new SongsAdapter(this, new AdapterDataWrapper(ViewType.LOADING_VIEW, null));
         recyclerView.setAdapter(songsAdapter);
 
         getSupportLoaderManager().initLoader(
@@ -49,17 +42,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         switch (id) {
 
             case MainAsyncTaskLoader.GET_ALL_SONGS_FROM_INTERNET:
-                Log.v(LOG_TAG, "-> onCreateLoader -> GET_ALL_SONGS_FROM_INTERNET");
+                Log.v(LOG_TAG, "-> onCreateLoader -> " + MainAsyncTaskLoader.getLoaderString(id));
                 return new MainAsyncTaskLoader(this);
 
-            case MainAsyncTaskLoader.GET_ALL_SONGS_FROM_DB:
-                Log.v(LOG_TAG, "-> onCreateLoader -> GET_ALL_SONGS_FROM_DB");
-                return new CursorLoader(
-                        this, StudiosContract.SongsEntry.CONTENT_URI,
-                        null, null, null, null);
-
             default:
-                throw new UnsupportedOperationException("-> Unknown id = " + id);
+                throw new UnsupportedOperationException("-> Unknown loader id = " + id);
         }
     }
 
@@ -70,28 +57,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             case MainAsyncTaskLoader.GET_ALL_SONGS_FROM_INTERNET:
 
-                Log.v(LOG_TAG, "-> onLoadFinished -> GET_ALL_SONGS_FROM_INTERNET");
-                songDetailsList = (ArrayList<SongDetails>) data;
-                Log.d(LOG_TAG, "-> onLoadFinished -> GET_ALL_SONGS_FROM_INTERNET -> " + songDetailsList);
-
-                getSupportLoaderManager().initLoader(
-                        MainAsyncTaskLoader.GET_ALL_SONGS_FROM_DB, null, this);
-
-                break;
-
-            case MainAsyncTaskLoader.GET_ALL_SONGS_FROM_DB:
-
-                Log.v(LOG_TAG, "-> onLoadFinished -> GET_ALL_SONGS_FROM_DB");
-                cursor = (Cursor) data;
-                Log.d(LOG_TAG, "-> onLoadFinished -> GET_ALL_SONGS_FROM_DB -> " + cursor.getCount());
-
-                songsAdapter.swapData(cursor, SongsAdapter.NORMAL_VIEW);
+                songsAdapterDataWrapper = (AdapterDataWrapper) data;
+                Log.v(LOG_TAG, "-> onLoadFinished -> " + MainAsyncTaskLoader.getLoaderString(loader.getId()) + " -> " + songsAdapterDataWrapper.getViewTypeString());
+                songsAdapter.swapData(songsAdapterDataWrapper);
                 break;
         }
     }
 
     @Override
     public void onLoaderReset(Loader loader) {
-        Log.v(LOG_TAG, "-> onLoaderReset");
+        Log.v(LOG_TAG, "-> onLoaderReset -> " + MainAsyncTaskLoader.getLoaderString(loader.getId()));
+    }
+
+    @Override
+    public void onClickReload() {
+        Log.v(LOG_TAG, "-> onClickReload");
+
+        songsAdapter.swapData(new AdapterDataWrapper(ViewType.LOADING_VIEW, null));
+
+        getSupportLoaderManager().restartLoader(
+                MainAsyncTaskLoader.GET_ALL_SONGS_FROM_INTERNET, null, this);
     }
 }

@@ -27,8 +27,7 @@ public class StudiosDbHelper extends SQLiteOpenHelper {
                 SongsEntry.COLUMN_SONG_NAME + " TEXT NOT NULL, " +
                 SongsEntry.COLUMN_SONG_URL + " TEXT, " +
                 SongsEntry.COLUMN_SONG_ARTISTS + " TEXT, " +
-                SongsEntry.COLUMN_SONG_COVER_IMAGE + " TEXT, " +
-                SongsEntry.COLUMN_SONG_FAVORITE + " INTEGER);";
+                SongsEntry.COLUMN_SONG_COVER_IMAGE + " TEXT);";
 
         db.execSQL(CREATE_TABLE);
     }

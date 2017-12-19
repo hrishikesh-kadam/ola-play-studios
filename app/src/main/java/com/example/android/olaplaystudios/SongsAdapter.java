@@ -2,8 +2,8 @@ package com.example.android.olaplaystudios;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.drawable.LayerDrawable;
+import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
@@ -16,11 +16,16 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.example.android.olaplaystudios.data.StudiosContract;
 import com.example.android.olaplaystudios.data.StudiosContract.SongsEntry;
+import com.example.android.olaplaystudios.model.SongDetails;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Hrishikesh Kadam on 16/12/2017
@@ -28,26 +33,27 @@ import butterknife.ButterKnife;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> {
 
-    public static final int LOADING_VIEW = 0;
-    public static final int NORMAL_VIEW = 1;
-    public static final int EMPTY_VIEW = 2;
-    public static final int FAILURE_VIEW = 3;
     private static final String LOG_TAG = SongsAdapter.class.getSimpleName();
     private Context context;
-    private Cursor cursor;
-    private int currentViewType;
+    private ArrayList<SongDetails> songDetailsList;
+    private int dataViewType;
+    private OnClickReloadListener onClickReloadListener;
 
-    public SongsAdapter(Context context, Cursor cursor, int currentViewType) {
+    public SongsAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
+
         this.context = context;
-        this.cursor = cursor;
-        this.currentViewType = currentViewType;
+        //noinspection unchecked
+        songDetailsList = (ArrayList<SongDetails>) adapterDataWrapper.data;
+        dataViewType = adapterDataWrapper.dataViewType;
+        onClickReloadListener = (OnClickReloadListener) context;
     }
 
-    public void swapData(Cursor cursor, int currentViewType) {
+    public void swapData(AdapterDataWrapper adapterDataWrapper) {
         Log.v(LOG_TAG, "-> swapData");
 
-        this.cursor = cursor;
-        this.currentViewType = currentViewType;
+        //noinspection unchecked
+        songDetailsList = (ArrayList<SongDetails>) adapterDataWrapper.data;
+        dataViewType = adapterDataWrapper.dataViewType;
         notifyDataSetChanged();
     }
 
@@ -57,27 +63,27 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         ViewHolder viewHolder;
         View itemView;
 
-        switch (viewType) {
+        switch (dataViewType) {
 
-            case NORMAL_VIEW:
+            case ViewType.NORMAL_VIEW:
                 itemView = LayoutInflater.from(parent.getContext()).
                         inflate(R.layout.song_details_item_layout, parent, false);
                 viewHolder = new NormalViewHolder(itemView);
                 break;
 
-            case LOADING_VIEW:
+            case ViewType.LOADING_VIEW:
                 itemView = LayoutInflater.from(parent.getContext()).
                         inflate(R.layout.loading_view, parent, false);
                 viewHolder = new ViewHolder(itemView);
                 break;
 
-            case FAILURE_VIEW:
+            case ViewType.FAILURE_VIEW:
                 itemView = LayoutInflater.from(parent.getContext()).
                         inflate(R.layout.failure_view, parent, false);
                 viewHolder = new FailureViewHolder(itemView);
                 break;
 
-            case EMPTY_VIEW:
+            case ViewType.EMPTY_VIEW:
                 itemView = LayoutInflater.from(parent.getContext()).
                         inflate(R.layout.empty_view, parent, false);
                 viewHolder = new ViewHolder(itemView);
@@ -93,18 +99,14 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        int viewType = getItemViewType(position);
+        switch (dataViewType) {
 
-        switch (viewType) {
+            case ViewType.NORMAL_VIEW:
 
-            case NORMAL_VIEW:
-
-                cursor.moveToPosition(position);
                 NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
+                SongDetails song = songDetailsList.get(position);
 
-                String coverImageUrl = cursor.getString(cursor.getColumnIndex(
-                        SongsEntry.COLUMN_SONG_COVER_IMAGE))
-                        .replace("http:", "https:");
+                String coverImageUrl = song.getCoverImage().replace("http:", "https:");
 
                 Picasso.with(context)
                         .load(coverImageUrl)
@@ -112,28 +114,11 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                         .error(R.drawable.imageview_error_placeholder)
                         .into(normalViewHolder.imageViewCover);
 
-                normalViewHolder.textViewSongName.setText(
-                        cursor.getString(cursor.getColumnIndex(SongsEntry.COLUMN_SONG_NAME)));
+                normalViewHolder.textViewSongName.setText(song.getSong());
+                normalViewHolder.textViewArtists.setText(song.getArtists());
 
-                normalViewHolder.textViewArtists.setText(
-                        cursor.getString(cursor.getColumnIndex(SongsEntry.COLUMN_SONG_ARTISTS)));
-
-                float rating = cursor.getLong(cursor.getColumnIndex(
-                        SongsEntry.COLUMN_SONG_FAVORITE)) == 1 ? 1.0f : 0.0f;
+                float rating = song.getFavorite() ? 1.0f : 0.0f;
                 normalViewHolder.ratingBar.setRating(rating);
-
-                normalViewHolder.ratingBar.setTag(
-                        cursor.getLong(cursor.getColumnIndex(SongsEntry._ID)));
-
-                break;
-
-            case LOADING_VIEW:
-                break;
-
-            case FAILURE_VIEW:
-                break;
-
-            case EMPTY_VIEW:
                 break;
         }
     }
@@ -141,23 +126,19 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     @Override
     public int getItemCount() {
 
-        if (cursor == null || cursor.getCount() == 0)
+        if (songDetailsList == null || songDetailsList.isEmpty())
             return 1;
         else
-            return cursor.getCount();
+            return songDetailsList.size();
     }
 
     @Override
     public int getItemViewType(int position) {
+        return dataViewType;
+    }
 
-        if (currentViewType == LOADING_VIEW)
-            return LOADING_VIEW;
-        else if (currentViewType == FAILURE_VIEW)
-            return FAILURE_VIEW;
-        else if (cursor == null || cursor.getCount() == 0)
-            return EMPTY_VIEW;
-        else
-            return NORMAL_VIEW;
+    public interface OnClickReloadListener {
+        public void onClickReload();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -231,19 +212,60 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         public void onRatingChanged(float rating, boolean fromUser) {
             Log.v(LOG_TAG, "-> onRatingChanged -> rating = " + rating + ", fromUser = " + fromUser);
 
-            ContentValues values = new ContentValues();
-            values.put(SongsEntry.COLUMN_SONG_FAVORITE, (long) rating);
+            if (rating == 1.0f) {
 
-            context.getContentResolver().update(
-                    SongsEntry.CONTENT_URI.buildUpon().appendPath(ratingBar.getTag().toString()).build(),
-                    values, null, null);
+                SongDetails song = songDetailsList.get(getAdapterPosition());
+                ContentValues values = new ContentValues();
+                values.put(SongsEntry.COLUMN_SONG_NAME, song.getSong());
+                values.put(SongsEntry.COLUMN_SONG_URL, song.getUrl());
+                values.put(SongsEntry.COLUMN_SONG_ARTISTS, song.getArtists());
+                values.put(SongsEntry.COLUMN_SONG_COVER_IMAGE, song.getCoverImage());
+
+                Uri uri = context.getContentResolver().insert(SongsEntry.CONTENT_URI, values);
+
+                if (uri == null)
+                    Log.e(LOG_TAG, "-> onRatingChanged -> row insertion failed");
+                else {
+                    Log.v(LOG_TAG, "-> onRatingChanged -> uri : " + uri + " inserted");
+                    song.setDatabaseId(Long.valueOf(uri.getLastPathSegment()));
+                    song.setFavorite(true);
+                }
+
+            } else if (rating == 0.0f) {
+
+                SongDetails song = songDetailsList.get(getAdapterPosition());
+                Long databaseId = song.getDatabaseId();
+                Uri uri = StudiosContract.SongsEntry.CONTENT_URI.buildUpon()
+                        .appendPath(String.valueOf(databaseId)).build();
+
+                int noOfRowsDeleted = context.getContentResolver().delete(uri, null, null);
+
+                if (noOfRowsDeleted > 0) {
+                    Log.v(LOG_TAG, "-> onRatingChanged -> uri : " + uri + " deleted");
+                    song.setDatabaseId(null);
+                    song.setFavorite(false);
+                } else
+                    Log.e(LOG_TAG, "-> onRatingChanged -> no rows deleted");
+
+            } else
+                Log.w(LOG_TAG, "-> onRatingChanged -> Unknown rating = " + rating);
         }
     }
 
     public class FailureViewHolder extends ViewHolder {
 
+        @BindView(R.id.imageViewReload)
+        ImageView imageViewReload;
+
         public FailureViewHolder(View itemView) {
             super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+
+        @OnClick(R.id.imageViewReload)
+        public void onClickReload() {
+            Log.v(LOG_TAG, "-> onClickReload");
+            onClickReloadListener.onClickReload();
         }
     }
 }

@@ -44,11 +44,17 @@ public class SongDetails implements Parcelable {
     @Expose
     private String coverImage;
 
+    private Boolean favorite;
+
+    private Long databaseId;
+
     protected SongDetails(Parcel in) {
         this.song = ((String) in.readValue((String.class.getClassLoader())));
         this.url = ((String) in.readValue((String.class.getClassLoader())));
         this.artists = ((String) in.readValue((String.class.getClassLoader())));
         this.coverImage = ((String) in.readValue((String.class.getClassLoader())));
+        this.favorite = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.databaseId = (Long) in.readValue(Long.class.getClassLoader());
     }
 
     public SongDetails() {
@@ -59,6 +65,8 @@ public class SongDetails implements Parcelable {
         dest.writeValue(url);
         dest.writeValue(artists);
         dest.writeValue(coverImage);
+        dest.writeValue(favorite);
+        dest.writeValue(databaseId);
     }
 
     public int describeContents() {
@@ -81,6 +89,22 @@ public class SongDetails implements Parcelable {
         return TextUtils.isEmpty(coverImage) ? "NA" : coverImage;
     }
 
+    public Boolean getFavorite() {
+        return favorite == null ? false : favorite;
+    }
+
+    public void setFavorite(Boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    public Long getDatabaseId() {
+        return databaseId;
+    }
+
+    public void setDatabaseId(Long databaseId) {
+        this.databaseId = databaseId;
+    }
+
     @Override
     public String toString() {
         return "SongDetails{" +
@@ -88,6 +112,8 @@ public class SongDetails implements Parcelable {
                 ", url='" + url + '\'' +
                 ", artists='" + artists + '\'' +
                 ", coverImage='" + coverImage + '\'' +
+                ", favorite=" + favorite +
+                ", databaseId=" + databaseId +
                 '}';
     }
 }

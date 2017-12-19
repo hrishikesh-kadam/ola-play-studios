@@ -24,6 +24,5 @@ public class StudiosContract {
         public static final String COLUMN_SONG_URL = "url";
         public static final String COLUMN_SONG_ARTISTS = "artists";
         public static final String COLUMN_SONG_COVER_IMAGE = "cover_image";
-        public static final String COLUMN_SONG_FAVORITE = "favorite";
     }
 }
