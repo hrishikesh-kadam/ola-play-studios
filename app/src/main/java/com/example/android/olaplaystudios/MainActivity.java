@@ -74,6 +74,9 @@ public class MainActivity extends AppCompatActivity
 
         getSupportLoaderManager().initLoader(
                 MainAsyncTaskLoader.GET_ALL_SONGS_FROM_INTERNET, null, this);
+
+        if (NowPlaying.getAction() != null)
+            exoPlayerView.setVisibility(View.VISIBLE);
     }
 
     private void initializeMediaSession() {
@@ -228,9 +231,12 @@ public class MainActivity extends AppCompatActivity
             return;
 
         else if (NowPlaying.getAction().equals(SongsAdapter.PLAY)) {
+
             NowPlaying.setNowPlaying(NowPlaying.getSongUrl(), SongsAdapter.PAUSE);
             exoPlayer.setPlayWhenReady(false);
+
         } else if (NowPlaying.getAction().equals(SongsAdapter.PAUSE)) {
+
             NowPlaying.setNowPlaying(NowPlaying.getSongUrl(), SongsAdapter.PLAY);
             exoPlayer.setPlayWhenReady(true);
         }
@@ -307,6 +313,7 @@ public class MainActivity extends AppCompatActivity
 
         // Playing song for first time
         if (NowPlaying.getLastAction() == null) {
+            exoPlayerView.setVisibility(View.VISIBLE);
             playSong(NowPlaying.getSongUrl());
             return;
         }

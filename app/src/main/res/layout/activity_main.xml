@@ -22,8 +22,10 @@
         android:id="@+id/exoPlayerView"
         android:layout_width="0dp"
         android:layout_height="90dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
 
 </android.support.constraint.ConstraintLayout>
