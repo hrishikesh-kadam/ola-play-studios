@@ -141,6 +141,17 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         }
     }
 
+    public void playFirstSong() {
+        Log.v(LOG_TAG, "-> playFirstSong");
+
+        if (dataViewType != ViewType.NORMAL_VIEW)
+            return;
+
+        NowPlaying.setNowPlaying(songDetailsList.get(0).getUrl(), PLAY);
+        notifyDataSetChanged();
+        onClickButtonPlayPauseListener.onClickButtonPlayPause();
+    }
+
     @Override
     public int getItemCount() {
 
@@ -306,9 +317,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             Log.v(LOG_TAG, "-> onClickButtonPlayPause -> uri = " + uri);*/
 
             NowPlaying.setNowPlaying(songUrl, action);
-
             notifyDataSetChanged();
-
             onClickButtonPlayPauseListener.onClickButtonPlayPause();
         }
     }

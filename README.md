@@ -20,21 +20,37 @@ Link - https://github.com/hrishikesh-kadam/ola-play-studios
 
 [Minimum Requirement]
 
-- Use of Web API to fetch songs details.
-- Visually interactive design to list details.
-- Couldn't implement paging because the API didn't had any paging related docs.
-- Clicking on star saves the songs as favorite in DB.
+:white_check_mark: Use of Web API to fetch songs details.<br/>
+:white_check_mark: Visually interactive design to list details.<br/>
+:white_check_mark: Couldn't implement paging because the API didn't had any paging related docs.<br/>
+:white_check_mark: Clicking on star saves the songs as favorite in DB.<br/>
 
 [Plus Point]
 
-- Implement a music player in your application to stream songs, you can use any open source player like exoplayer but you should make your own UI skin for the player.
+:white_check_mark: Implement a music player in your application to stream songs, you can use any open source player like exoplayer but you should make your own UI skin for the player.<br/>
 
 [Other than listed requirement]
 
-- Supports RTL layout
-- Error and Loading placeholders for ImageView
+:star: MediaSessionCompat support<br/>
+:star: Orientation support<br/>
+:star: RTL layout<br/>
+:star: Error and Loading placeholders for ImageView<br/>
 
-**I could do only this much in 25 hours and 30 minutes. You can verify the timestamps from GitHub repo.**
+
+## Time required
+
+Session 1: 16/12/2017 12:30 PM to 17/12/2017 12:10 AM<br/>
+Hackerearth website broke so most of the time got wasted<br/>
+
+v1.0 tag created to check coding for 12 hours only<br/>
+
+Session 2: 19/12/2017 03:00 PM to 20/12/2017 04:30 AM<br/>
+Hackerearth extended 12 hours for me but again website broke.
+
+Session 3: 20/12/2017 03:00 PM to 21/12/2017 12:50 AM<br/>
+Hackerearth gave me fresh start to submit my work again.
+
+So in total I took approximately 36 hours to complete the above listed working.
 
 
 ## Portfolio

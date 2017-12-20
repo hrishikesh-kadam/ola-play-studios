@@ -224,13 +224,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     @OnClick({R.id.exo_play, R.id.exo_pause})
-    public void onClickViewPlayPause(View view) {
-        Log.d(LOG_TAG, "-> onClickViewPlayPause");
+    public void onClickViewPlayPause() {
+        Log.v(LOG_TAG, "-> onClickViewPlayPause");
 
-        if (NowPlaying.getAction() == null)
+        if (NowPlaying.getAction() == null) {
+            songsAdapter.playFirstSong();
             return;
-
-        else if (NowPlaying.getAction().equals(SongsAdapter.PLAY)) {
+        } else if (NowPlaying.getAction().equals(SongsAdapter.PLAY)) {
 
             NowPlaying.setNowPlaying(NowPlaying.getSongUrl(), SongsAdapter.PAUSE);
             exoPlayer.setPlayWhenReady(false);
@@ -308,8 +308,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClickButtonPlayPause() {
-        Log.d(LOG_TAG, "-> onClickButtonPlayPause -> " + NowPlaying.getLastSongUrl() + ", " + NowPlaying.getLastAction());
-        Log.d(LOG_TAG, "-> onClickButtonPlayPause -> " + NowPlaying.getSongUrl() + ", " + NowPlaying.getAction());
+        Log.v(LOG_TAG, "-> onClickButtonPlayPause -> " + NowPlaying.getLastSongUrl() + ", " + NowPlaying.getLastAction());
+        Log.v(LOG_TAG, "-> onClickButtonPlayPause -> " + NowPlaying.getSongUrl() + ", " + NowPlaying.getAction());
 
         // Playing song for first time
         if (NowPlaying.getLastAction() == null) {
@@ -349,16 +349,17 @@ public class MainActivity extends AppCompatActivity
      * Media Session Callbacks, where all external clients control the player.
      */
     private class MySessionCallback extends MediaSessionCompat.Callback {
+
         @Override
         public void onPlay() {
             Log.v(LOG_TAG, "-> MySessionCallback -> onPlay");
-            exoPlayer.setPlayWhenReady(true);
+            onClickViewPlayPause();
         }
 
         @Override
         public void onPause() {
             Log.v(LOG_TAG, "-> MySessionCallback -> onPause");
-            exoPlayer.setPlayWhenReady(false);
+            onClickViewPlayPause();
         }
 
         @Override
