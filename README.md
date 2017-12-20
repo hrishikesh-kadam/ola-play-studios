@@ -1,8 +1,31 @@
 # Ola Android Developer Hiring Challenge
 
+
 ## GitHub Repo -
 
 Link - https://github.com/hrishikesh-kadam/ola-play-studios
+
+
+## Application Working covered -
+
+[Minimum Requirement]
+
+:white_check_mark: Use of Web API to fetch songs details.<br/>
+:white_check_mark: Visually interactive design to list details.<br/>
+:white_check_mark: Implement paging to display the results properly. (Couldn't implement paging because the API didn't had any paging related docs)<br/>
+
+[Plus Point]
+
+:white_check_mark: Implement a music player in your application to stream songs, you can use any open source player like exoplayer but you should make your own UI skin for the player.<br/>
+
+[Other than listed requirement]
+
+:star: MediaSessionCompat support<br/>
+:star: Clicking on star saves the songs as favorite in DB.<br/>
+:star: Orientation support<br/>
+:star: RTL layout<br/>
+:star: Error and Loading placeholders for ImageView<br/>
+
 
 ## Components Used -
 
@@ -16,26 +39,6 @@ Link - https://github.com/hrishikesh-kadam/ola-play-studios
 - Content Provider
 - AsyncTaskLoader
 
-## Application Working covered -
-
-[Minimum Requirement]
-
-:white_check_mark: Use of Web API to fetch songs details.<br/>
-:white_check_mark: Visually interactive design to list details.<br/>
-:white_check_mark: Couldn't implement paging because the API didn't had any paging related docs.<br/>
-:white_check_mark: Clicking on star saves the songs as favorite in DB.<br/>
-
-[Plus Point]
-
-:white_check_mark: Implement a music player in your application to stream songs, you can use any open source player like exoplayer but you should make your own UI skin for the player.<br/>
-
-[Other than listed requirement]
-
-:star: MediaSessionCompat support<br/>
-:star: Orientation support<br/>
-:star: RTL layout<br/>
-:star: Error and Loading placeholders for ImageView<br/>
-
 
 ## Time required
 
@@ -47,7 +50,7 @@ v1.0 tag created to check coding for 12 hours only<br/>
 Session 2: 19/12/2017 03:00 PM to 20/12/2017 04:30 AM<br/>
 Hackerearth extended 12 hours for me but again website broke.
 
-Session 3: 20/12/2017 03:00 PM to 21/12/2017 12:50 AM<br/>
+Session 3: 20/12/2017 03:00 PM to 21/12/2017 12:56 AM<br/>
 Hackerearth gave me fresh start to submit my work again.
 
 So in total I took approximately 36 hours to complete the above listed working.
