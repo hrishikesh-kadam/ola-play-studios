@@ -48,8 +48,6 @@ public class SongDetails implements Parcelable {
 
     private Long databaseId;
 
-    private String action;
-
     protected SongDetails(Parcel in) {
         this.song = ((String) in.readValue((String.class.getClassLoader())));
         this.url = ((String) in.readValue((String.class.getClassLoader())));
@@ -57,7 +55,6 @@ public class SongDetails implements Parcelable {
         this.coverImage = ((String) in.readValue((String.class.getClassLoader())));
         this.favorite = (Boolean) in.readValue(Boolean.class.getClassLoader());
         this.databaseId = (Long) in.readValue(Long.class.getClassLoader());
-        this.action = ((String) in.readValue((String.class.getClassLoader())));
     }
 
     public SongDetails() {
@@ -70,7 +67,6 @@ public class SongDetails implements Parcelable {
         dest.writeValue(coverImage);
         dest.writeValue(favorite);
         dest.writeValue(databaseId);
-        dest.writeValue(action);
     }
 
     public int describeContents() {
@@ -83,14 +79,6 @@ public class SongDetails implements Parcelable {
 
     public void setSong(String song) {
         this.song = song;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
     }
 
     public String getUrl() {

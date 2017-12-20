@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.example.android.olaplaystudios.data.StudiosContract.NowPlayingEntry;
 import com.example.android.olaplaystudios.data.StudiosContract.SongsEntry;
 
 /**
@@ -20,6 +21,8 @@ public class StudiosContentProvider extends ContentProvider {
 
     private static final int SONGS_ALL = 0;
     private static final int SONGS_WITH_ID = 1;
+    private static final int NOW_PLAYING_ALL = 2;
+    private static final int NOW_PLAYING_WITH_ID = 4;
     private static final UriMatcher uriMatcher = buildUriMatcher();
     private StudiosDbHelper studiosDbHelper;
 
@@ -29,6 +32,9 @@ public class StudiosContentProvider extends ContentProvider {
 
         uriMatcher.addURI(StudiosContract.AUTHORITY, StudiosContract.PATH_SONGS, SONGS_ALL);
         uriMatcher.addURI(StudiosContract.AUTHORITY, StudiosContract.PATH_SONGS + "/#", SONGS_WITH_ID);
+
+        uriMatcher.addURI(StudiosContract.AUTHORITY, StudiosContract.PATH_NOW_PLAYING, NOW_PLAYING_ALL);
+        uriMatcher.addURI(StudiosContract.AUTHORITY, StudiosContract.PATH_NOW_PLAYING + "/#", NOW_PLAYING_WITH_ID);
 
         return uriMatcher;
     }
@@ -69,6 +75,26 @@ public class StudiosContentProvider extends ContentProvider {
                         null);
                 break;
 
+            case NOW_PLAYING_ALL:
+                cursor = db.query(NowPlayingEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case NOW_PLAYING_WITH_ID:
+                cursor = db.query(NowPlayingEntry.TABLE_NAME,
+                        projection,
+                        NowPlayingEntry._ID + "=?",
+                        new String[]{uri.getLastPathSegment()},
+                        null,
+                        null,
+                        null);
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri + " in query method");
         }
@@ -90,15 +116,27 @@ public class StudiosContentProvider extends ContentProvider {
 
         Uri returnUri;
         final SQLiteDatabase db = studiosDbHelper.getWritableDatabase();
+        long id;
 
         switch (uriMatcher.match(uri)) {
 
             case SONGS_ALL:
 
-                long id = db.insert(SongsEntry.TABLE_NAME, null, values);
+                id = db.insert(SongsEntry.TABLE_NAME, null, values);
 
                 if (id > 0)
                     returnUri = ContentUris.withAppendedId(SongsEntry.CONTENT_URI, id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+
+                break;
+
+            case NOW_PLAYING_ALL:
+
+                id = db.insert(NowPlayingEntry.TABLE_NAME, null, values);
+
+                if (id > 0)
+                    returnUri = ContentUris.withAppendedId(NowPlayingEntry.CONTENT_URI, id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
 
@@ -164,6 +202,11 @@ public class StudiosContentProvider extends ContentProvider {
                         SongsEntry.TABLE_NAME,
                         SongsEntry._ID + " = ?",
                         new String[]{uri.getLastPathSegment()});
+                break;
+
+            case NOW_PLAYING_ALL:
+
+                noOfRowsDeleted = db.delete(NowPlayingEntry.TABLE_NAME, selection, selectionArgs);
                 break;
 
             default:

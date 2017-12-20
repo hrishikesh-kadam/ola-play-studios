@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.android.olaplaystudios.data.StudiosContract.NowPlayingEntry;
 import com.example.android.olaplaystudios.data.StudiosContract.SongsEntry;
 
 /**
@@ -22,12 +23,19 @@ public class StudiosDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        final String CREATE_TABLE = "CREATE TABLE " + SongsEntry.TABLE_NAME + " (" +
+        String CREATE_TABLE = "CREATE TABLE " + SongsEntry.TABLE_NAME + " (" +
                 SongsEntry._ID + " INTEGER PRIMARY KEY, " +
                 SongsEntry.COLUMN_SONG_NAME + " TEXT NOT NULL, " +
                 SongsEntry.COLUMN_SONG_URL + " TEXT, " +
                 SongsEntry.COLUMN_SONG_ARTISTS + " TEXT, " +
                 SongsEntry.COLUMN_SONG_COVER_IMAGE + " TEXT);";
+
+        db.execSQL(CREATE_TABLE);
+
+        CREATE_TABLE = "CREATE TABLE " + NowPlayingEntry.TABLE_NAME + " (" +
+                NowPlayingEntry._ID + " INTEGER, " +
+                NowPlayingEntry.COLUMN_SONG_URL + " TEXT PRIMARY KEY ON CONFLICT REPLACE, " +
+                NowPlayingEntry.COLUMN_ACTION + " TEXT);";
 
         db.execSQL(CREATE_TABLE);
     }

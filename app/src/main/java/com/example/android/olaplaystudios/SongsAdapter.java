@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.example.android.olaplaystudios.data.StudiosContract;
 import com.example.android.olaplaystudios.data.StudiosContract.SongsEntry;
+import com.example.android.olaplaystudios.model.NowPlaying;
 import com.example.android.olaplaystudios.model.SongDetails;
 import com.example.android.olaplaystudios.util.CustomPicasso;
 import com.squareup.picasso.Picasso;
@@ -44,7 +45,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     private OnClickReloadListener onClickReloadListener;
     private Picasso picasso;
     private OnClickButtonPlayPauseListener onClickButtonPlayPauseListener;
-    private int nowPlaying = -1;
 
     public SongsAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
 
@@ -126,12 +126,12 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 float rating = song.getFavorite() ? 1.0f : 0.0f;
                 normalViewHolder.ratingBar.setRating(rating);
 
-                if (song.getAction() == null || song.getAction().equals(PAUSE)) {
+                normalViewHolder.buttonPlay.setVisibility(View.VISIBLE);
+                normalViewHolder.buttonPause.setVisibility(View.INVISIBLE);
 
-                    normalViewHolder.buttonPlay.setVisibility(View.VISIBLE);
-                    normalViewHolder.buttonPause.setVisibility(View.INVISIBLE);
-
-                } else {
+                if (NowPlaying.getSongUrl() != null
+                        && NowPlaying.getSongUrl().equals(song.getUrl())
+                        && NowPlaying.getAction().equals(PLAY)) {
 
                     normalViewHolder.buttonPlay.setVisibility(View.INVISIBLE);
                     normalViewHolder.buttonPause.setVisibility(View.VISIBLE);
@@ -155,19 +155,12 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         return dataViewType;
     }
 
-    public void setAction(String action, int position) {
-        Log.v(LOG_TAG, "-> setAction -> " + action + " -> " + position);
-
-        songDetailsList.get(position).setAction(action);
-        notifyDataSetChanged();
-    }
-
     public interface OnClickReloadListener {
         public void onClickReload();
     }
 
     public interface OnClickButtonPlayPauseListener {
-        public void onClickButtonPlayPause(String action, int position, Uri uri);
+        public void onClickButtonPlayPause();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -288,8 +281,10 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
         @OnClick({R.id.buttonPlay, R.id.buttonPause})
         public void onClickButtonPlayPause(Button button) {
+            Log.v(LOG_TAG, "-> onClickButtonPlayPause");
 
             String action = null;
+            String songUrl;
 
             if (button.getId() == R.id.buttonPlay)
                 action = PLAY;
@@ -297,19 +292,24 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 action = PAUSE;
 
             SongDetails song = songDetailsList.get(getAdapterPosition());
-            song.setAction(action);
+            songUrl = song.getUrl();
 
-            if (nowPlaying != -1 && nowPlaying != getAdapterPosition())
-                songDetailsList.get(nowPlaying).setAction(null);
+            /*ContentValues values = new ContentValues();
+            values.put(NowPlayingEntry.COLUMN_SONG_URL, songUrl);
+            values.put(NowPlayingEntry.COLUMN_ACTION, action);
 
-            nowPlaying = getAdapterPosition();
+            int noOfRowsDeleted = context.getContentResolver().delete(
+                    NowPlayingEntry.CONTENT_URI, null, null);
+            Log.v(LOG_TAG, "-> onClickButtonPlayPause -> noOfRowsDeleted = " + noOfRowsDeleted);
 
-            Log.v(LOG_TAG, "-> onClickButtonPlayPause -> " + action + " -> " + nowPlaying);
+            Uri uri = context.getContentResolver().insert(NowPlayingEntry.CONTENT_URI, values);
+            Log.v(LOG_TAG, "-> onClickButtonPlayPause -> uri = " + uri);*/
 
-            onClickButtonPlayPauseListener.onClickButtonPlayPause(
-                    action, nowPlaying, Uri.parse(song.getUrl()));
+            NowPlaying.setNowPlaying(songUrl, action);
 
             notifyDataSetChanged();
+
+            onClickButtonPlayPauseListener.onClickButtonPlayPause();
         }
     }
 

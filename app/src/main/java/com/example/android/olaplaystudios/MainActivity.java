@@ -14,7 +14,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
+import com.example.android.olaplaystudios.model.NowPlaying;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -34,6 +36,7 @@ import com.google.android.exoplayer2.util.Util;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks, SongsAdapter.OnClickReloadListener,
@@ -51,7 +54,6 @@ public class MainActivity extends AppCompatActivity
     private PlaybackStateCompat.Builder stateBuilder;
     private DefaultDataSourceFactory dataSourceFactory;
     private ExtractorsFactory extractorsFactory;
-    private int nowPlaying = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,11 +135,11 @@ public class MainActivity extends AppCompatActivity
         extractorsFactory = new DefaultExtractorsFactory();
     }
 
-    public void playSong(Uri uri) {
+    public void playSong(String url) {
         Log.v(LOG_TAG, "-> playSong");
 
         MediaSource audioSource = new ExtractorMediaSource(
-                uri, dataSourceFactory, extractorsFactory, null, null);
+                Uri.parse(url), dataSourceFactory, extractorsFactory, null, null);
 
         exoPlayer.prepare(audioSource);
         exoPlayer.setPlayWhenReady(true);
@@ -182,6 +184,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader loader) {
         Log.v(LOG_TAG, "-> onLoaderReset -> " + MainAsyncTaskLoader.getLoaderString(loader.getId()));
+
+        switch (loader.getId()) {
+
+            case MainAsyncTaskLoader.GET_EXOPLAYER:
+
+                releasePlayer();
+                NowPlaying.destroy();
+//                getContentResolver().delete(
+//                        NowPlayingEntry.CONTENT_URI, null, null);
+                break;
+        }
     }
 
     @Override
@@ -207,10 +220,26 @@ public class MainActivity extends AppCompatActivity
     public void onLoadingChanged(boolean isLoading) {
     }
 
+    @OnClick({R.id.exo_play, R.id.exo_pause})
+    public void onClickViewPlayPause(View view) {
+        Log.d(LOG_TAG, "-> onClickViewPlayPause");
+
+        if (NowPlaying.getAction() == null)
+            return;
+
+        else if (NowPlaying.getAction().equals(SongsAdapter.PLAY)) {
+            NowPlaying.setNowPlaying(NowPlaying.getSongUrl(), SongsAdapter.PAUSE);
+            exoPlayer.setPlayWhenReady(false);
+        } else if (NowPlaying.getAction().equals(SongsAdapter.PAUSE)) {
+            NowPlaying.setNowPlaying(NowPlaying.getSongUrl(), SongsAdapter.PLAY);
+            exoPlayer.setPlayWhenReady(true);
+        }
+
+        songsAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
-        String action = null;
 
         if ((playbackState == Player.STATE_READY) && playWhenReady) {
             Log.v(LOG_TAG, "-> onPlayerStateChanged -> PLAY");
@@ -218,17 +247,13 @@ public class MainActivity extends AppCompatActivity
             stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
                     exoPlayer.getCurrentPosition(), 1f);
 
-            action = SongsAdapter.PLAY;
-            songsAdapter.setAction(action, nowPlaying);
-
         } else if ((playbackState == Player.STATE_READY)) {
             Log.v(LOG_TAG, "-> onPlayerStateChanged -> PAUSE");
 
             stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
                     exoPlayer.getCurrentPosition(), 1f);
 
-            action = SongsAdapter.PAUSE;
-            songsAdapter.setAction(action, nowPlaying);
+
         }
 
         mediaSession.setPlaybackState(stateBuilder.build());
@@ -269,39 +294,34 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
 
-        exoPlayer.removeListener(this);
+        if (exoPlayer != null)
+            exoPlayer.removeListener(this);
+
         mediaSession.setActive(false);
     }
 
     @Override
-    public void onClickButtonPlayPause(String action, int position, Uri uri) {
-        Log.v(LOG_TAG, "-> onClickButtonPlayPause -> " + action + " -> " + position);
+    public void onClickButtonPlayPause() {
+        Log.d(LOG_TAG, "-> onClickButtonPlayPause -> " + NowPlaying.getLastSongUrl() + ", " + NowPlaying.getLastAction());
+        Log.d(LOG_TAG, "-> onClickButtonPlayPause -> " + NowPlaying.getSongUrl() + ", " + NowPlaying.getAction());
 
-        if (position == nowPlaying) {
-            exoPlayer.setPlayWhenReady(action.equals(SongsAdapter.PLAY));
+        // Playing song for first time
+        if (NowPlaying.getLastAction() == null) {
+            playSong(NowPlaying.getSongUrl());
             return;
         }
 
-        nowPlaying = position;
-        playSong(uri);
-    }
+        // Song changed
+        if (!NowPlaying.getLastSongUrl().equals(NowPlaying.getSongUrl())) {
+            playSong(NowPlaying.getSongUrl());
+            return;
+        }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.v(LOG_TAG, "-> onSaveInstanceState");
-
-        outState.putInt("nowPlaying", nowPlaying);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Log.v(LOG_TAG, "-> onRestoreInstanceState");
-
-        nowPlaying = savedInstanceState.getInt("nowPlaying");
-
-        onPlayerStateChanged(exoPlayer.getPlayWhenReady(), exoPlayer.getPlaybackState());
+        // Toggle condition
+        if (NowPlaying.getLastSongUrl().equals(NowPlaying.getSongUrl())) {
+            exoPlayer.setPlayWhenReady(NowPlaying.getAction().equals(SongsAdapter.PLAY));
+            return;
+        }
     }
 
     /**
