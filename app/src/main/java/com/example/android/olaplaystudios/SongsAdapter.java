@@ -22,7 +22,6 @@ import com.example.android.olaplaystudios.data.StudiosContract.SongsEntry;
 import com.example.android.olaplaystudios.model.NowPlaying;
 import com.example.android.olaplaystudios.model.SongDetails;
 import com.example.android.olaplaystudios.util.CustomPicasso;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -43,7 +42,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     private ArrayList<SongDetails> songDetailsList;
     private int dataViewType;
     private OnClickReloadListener onClickReloadListener;
-    private Picasso picasso;
     private OnClickButtonPlayPauseListener onClickButtonPlayPauseListener;
 
     public SongsAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
@@ -53,7 +51,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         songDetailsList = (ArrayList<SongDetails>) adapterDataWrapper.data;
         dataViewType = adapterDataWrapper.dataViewType;
         onClickReloadListener = (OnClickReloadListener) context;
-        picasso = CustomPicasso.getPicasso(context);
         onClickButtonPlayPauseListener = (OnClickButtonPlayPauseListener) context;
     }
 
@@ -115,7 +112,8 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
                 NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
                 SongDetails song = songDetailsList.get(position);
 
-                picasso.load(song.getCoverImage())
+                CustomPicasso.with(context)
+                        .load(song.getCoverImage())
                         .placeholder(R.drawable.imageview_loading_placeholder)
                         .error(R.drawable.imageview_error_placeholder)
                         .into(normalViewHolder.imageViewCover);
@@ -164,11 +162,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
     @Override
     public int getItemViewType(int position) {
         return dataViewType;
-    }
-
-    public void shutdownPicasso() {
-        Log.v(LOG_TAG, "-> shutdownPicasso");
-        picasso.shutdown();
     }
 
     public interface OnClickReloadListener {
