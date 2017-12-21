@@ -57,7 +57,7 @@ Session 4: 21/12/2017 03:00 PM to 21/12/2017 09:00 PM<br/>
 Hackerearth extended 3 hours for project submission
 
 Session 5: 22/12/2017 02:00 AM to 22/12/2017 05:20 AM<br/>
-Created CustomPicasso class for image URL redirection support and hosted on Git gist - https://gist.github.com/hrishikesh-kadam/09cef31c736de088313f1a102f5ed3a3
+Created CustomPicasso class for image URL redirection support and hosted on GitHub gist - https://gist.github.com/hrishikesh-kadam/09cef31c736de088313f1a102f5ed3a3
 
 So in total I took approximately 45 hours to complete the above listed working.
 
