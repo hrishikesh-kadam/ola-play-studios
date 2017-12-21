@@ -166,6 +166,11 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
         return dataViewType;
     }
 
+    public void shutdownPicasso() {
+        Log.v(LOG_TAG, "-> shutdownPicasso");
+        picasso.shutdown();
+    }
+
     public interface OnClickReloadListener {
         public void onClickReload();
     }

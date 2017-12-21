@@ -304,6 +304,10 @@ public class MainActivity extends AppCompatActivity
             exoPlayer.removeListener(this);
 
         mediaSession.setActive(false);
+
+        exoPlayerView.setPlayer(null);
+
+        songsAdapter.shutdownPicasso();
     }
 
     @Override

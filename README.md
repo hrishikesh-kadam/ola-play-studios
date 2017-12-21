@@ -53,7 +53,10 @@ Hackerearth extended 12 hours for me but again website broke.
 Session 3: 20/12/2017 03:00 PM to 21/12/2017 12:56 AM<br/>
 Hackerearth gave me fresh start to submit my work again.
 
-So in total I took approximately 36 hours to complete the above listed working.
+Session 4: 21/12/2017 03:00 PM to 21/12/2017 09:00 PM<br/>
+Hackerearth extended 3 hours for project submission
+
+So in total I took approximately 42 hours to complete the above listed working.
 
 
 ## Portfolio
